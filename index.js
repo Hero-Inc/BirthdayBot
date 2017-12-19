@@ -228,7 +228,7 @@ function initialise() {
 			},
 			{
 				// Command Options
-				description: 'A bot to check if you\'ve been pwned',
+				description: 'A bot to celebrate users birthdays',
 				owner: '@Heroj04',
 				defaultCommandOptions: {
 					caseInsensitive: true,
