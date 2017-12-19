@@ -1,7 +1,7 @@
 const Discord = require(`eris`);
 const fs = require(`fs`);
 
-var config, bot, guildData = {};
+var config, birthdays, bot, guildData = {};
 
 var commands = [
 	// {name: 'example', return: 'function/string', options: {}}
@@ -48,7 +48,29 @@ var commands = [
 	},
 	{
 		name: 'Birthday',
-		return: 'No Birthdays Today',
+		return: (msg, args) => {
+			let users = [],
+				today = new Date();
+			today = `${today.getDate}${today.getMonth}`;
+			for (var id in birthdays) {
+				if (birthdays.hasOwnProperty(id)) {
+					let bday = new Date(birthdays[id]);
+					bday = `${bday.getDate}${bday.getMonth}`;
+					if (bday === today) {
+						users.push(`@${bot.users.get(id).username}#${bot.users.get(id).discriminator}`);
+					}
+				}
+			}
+			if (users.length > 0) {
+				let toSend = '~ Todays Birthdays ~';
+				for (let i = 0; i < users.length; i++) {
+					toSend += `\n${users[i]}`;
+				}
+				return toSend;
+			} else {
+				return 'There are no birthdays today';
+			}
+		},
 		options: {
 			aliases: ['BD', 'BDay', 'B-Day', 'Birthdays', 'BDays', 'B-Days'],
 			description: 'Returns a list of todays birthdays',
@@ -59,12 +81,31 @@ var commands = [
 				name: 'Add',
 				return: (msg, args) => {
 					// Add a birthday
+					let date = args[0].replace(/[_,.-/\\]/, '/'),
+						name = args[1],
+						user = msg.mentions[1],
+						reg = /([0-3]\d)\/([01]\d)\/(\d\d\d\d)/;
+					if (name && user && date.match(reg)) {
+						if (birthdays[user.id]) {
+							return 'This users birthday has already been saved';
+						}
+						let bkup = birthdays;
+						try {
+							birthdays[user.id] = new Date(date) / 1000;
+							fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays));
+							return `Succesfully added birthday`;
+						} catch (e) {
+							birthdays = bkup;
+							return `[ERROR] Issue Saving birthdays\n\`${e}\``;
+						}
+					} else {
+						return 'Please eneter a valid name and birthday date';
+					}
 				},
 				options: {
 					aliases: ['New', '+', 'Create'],
 					usage: '<Date> <User>',
 					argsRequired: true,
-					guildOnly: true,
 					description: 'Add a new birthday',
 					fullDescription: 'Adds a new birthday to the birthday database',
 					requirements: {
@@ -78,12 +119,29 @@ var commands = [
 				name: 'Remove',
 				return: (msg, args) => {
 					// Remove a birthday
+					let name = args[0],
+						user = msg.mentions[1];
+					if (name && user) {
+						if (!birthdays[user.id]) {
+							return 'This users birthday has not been added yet';
+						}
+						let bkup = birthdays;
+						try {
+							delete birthdays[user.id];
+							fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays));
+							return `Succesfully removed birthday`;
+						} catch (e) {
+							birthdays = bkup;
+							return `[ERROR] Issue Saving birthdays\n\`${e}\``;
+						}
+					} else {
+						return 'Please eneter a valid name';
+					}
 				},
 				options: {
 					aliases: ['Delete', '-', 'Del'],
 					usage: '<User>',
 					argsRequired: true,
-					guildOnly: true,
 					description: 'Remove a birthday',
 					fullDescription: 'Removes a birthday from the birthday database',
 					requirements: {
@@ -91,6 +149,27 @@ var commands = [
 							administrator: true,
 						},
 					},
+				},
+			},
+			{
+				name: 'Search',
+				return: (msg, args) => {
+					// Search a birthday
+					let name = args[0],
+						user = msg.mentions[1];
+					if (name && user) {
+						let date = new Date(birthdays[user.id] * 1000);
+						return `${user.mention}'s birthday is ${`00${date.getDate()}`.substr(-2, 2)}/${`00${date.getMonth() + 1}`.substr(-2, 2)}/${`0000${date.getFullYear()}`.substr(-4, 4)}'`;
+					} else {
+						return 'Please eneter a valid name';
+					}
+				},
+				options: {
+					aliases: ['Find', '?', 'When', 'Get'],
+					usage: '<User>',
+					argsRequired: true,
+					description: 'Find out when a users birthday is',
+					fullDescription: 'Returns the date of a users birthday',
 				},
 			},
 		],
@@ -108,7 +187,9 @@ function initialise() {
 		if (files === undefined || files.length < 2) {
 			return console.log(`[ERR]  No files are available including this one. (This error shouldn't appear but if it does you've done something very wrong)`);
 		}
-		let conf = false, guild = false;
+		let conf = false,
+			guild = false,
+			bdays = false;
 		for (let i = 0; i < files.length; i++) {
 			let stats = fs.statSync(files[i]);
 			if (files[i] === `config.js` && stats.isFile()) {
@@ -116,6 +197,9 @@ function initialise() {
 			}
 			if (files[i] === `guildData.json` && stats.isFile()) {
 				guild = true;
+			}
+			if (files[i] === `birthdays.json` && stats.isFile()) {
+				bdays = true;
 			}
 		}
 		if (!conf) {
@@ -127,6 +211,12 @@ function initialise() {
 			fs.writeFileSync(`./guildData.json`, '{}');
 		} else {
 			guildData = JSON.parse(fs.readFileSync('./guildData.json'));
+		}
+		if (!bdays) {
+			console.log(`[WARN] Birthdays file not found, creating one now.`);
+			fs.writeFileSync(`./birthdays.json`, '{}');
+		} else {
+			birthdays = JSON.parse(fs.readFileSync('./birthdays.json'));
 		}
 		console.log(`[INFO] Loading config file ...`);
 		config = require(`./config.js`);
