@@ -107,7 +107,7 @@ var commands = [
 					usage: '<Date> <User>',
 					argsRequired: true,
 					description: 'Add a new birthday',
-					fullDescription: 'Adds a new birthday to the birthday database',
+					fullDescription: 'Adds a new birthday to the birthday database.\nUse the format DD/MM/YYYY e.g., 18/12/1998 because this and ISO are superior in every way to the dumb American format.\nLike, seriously America, between this, using Farenheit and refusing to adopt metric units, c\'mon',
 					requirements: {
 						permissions: {
 							administrator: true,
