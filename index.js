@@ -179,13 +179,13 @@ var commands = [
 function initialise() {
 	// Do things to set up the bot
 
-	console.log(`[INFO] Starting Bot ...`);
+	console.info(`[INFO] Starting Bot ...`);
 	fs.readdir(`./`, (err, files) => {
 		if (err) {
-			return console.log(`[ERR]  Issue reading base folder: ${err}`);
+			return console.error(`[ERR]  Issue reading base folder: ${err}`);
 		}
 		if (files === undefined || files.length < 2) {
-			return console.log(`[ERR]  No files are available including this one. (This error shouldn't appear but if it does you've done something very wrong)`);
+			return console.error(`[ERR]  No files are available including this one. (This error shouldn't appear but if it does you've done something very wrong)`);
 		}
 		let conf = false,
 			guild = false,
@@ -203,24 +203,24 @@ function initialise() {
 			}
 		}
 		if (!conf) {
-			console.log(`[WARN] Config file not found, creating one now.`);
+			console.warn(`[WARN] Config file not found, creating one now.`);
 			fs.writeFileSync(`./config.js`, fs.readFileSync(`./example_config.js`));
 		}
 		if (!guild) {
-			console.log(`[WARN] Guild file not found, creating one now.`);
+			console.warn(`[WARN] Guild file not found, creating one now.`);
 			fs.writeFileSync(`./guildData.json`, '{}');
 		} else {
 			guildData = JSON.parse(fs.readFileSync('./guildData.json'));
 		}
 		if (!bdays) {
-			console.log(`[WARN] Birthdays file not found, creating one now.`);
+			console.warn(`[WARN] Birthdays file not found, creating one now.`);
 			fs.writeFileSync(`./birthdays.json`, '{}');
 		} else {
 			birthdays = JSON.parse(fs.readFileSync('./birthdays.json'));
 		}
-		console.log(`[INFO] Loading config file ...`);
+		console.info(`[INFO] Loading config file ...`);
 		config = require(`./config.js`);
-		console.log(`[INFO] Logging in ...`);
+		console.info(`[INFO] Logging in ...`);
 		bot = new Discord.CommandClient(
 			config.botToken,
 			{
@@ -241,12 +241,12 @@ function initialise() {
 
 		bot
 			.on('error', error => {
-				console.log(`[ERR]  Bot Error: ${error}`);
+				console.error(`[ERR]  Bot Error: ${error}`);
 			})
 			.on('ready', () => {
-				console.log(`[INFO] Bot Connected and Ready`);
+				console.info(`[INFO] Bot Connected and Ready`);
 			});
-		console.log(`[INFO] Registering Commands ...`, 20);
+		console.info(`[INFO] Registering Commands ...`);
 		for (let i = 0; i < commands.length; i++) {
 			let cmd = bot.registerCommand(
 				commands[i].name,
@@ -264,7 +264,7 @@ function initialise() {
 				}
 			}
 		}
-		console.log(`[INFO] Setting Guild Prefixes ...`);
+		console.info(`[INFO] Setting Guild Prefixes ...`);
 		for (var guildID in guildData) {
 			if (guildData.hasOwnProperty(guildID)) {
 				if (guildData[guildID].prefix !== undefined || guildData[guildID].prefix !== '') {
