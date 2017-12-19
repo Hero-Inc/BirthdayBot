@@ -256,7 +256,7 @@ function initialise() {
 
 			if (commands[i].subCommands) {
 				for (let j = 0; j < commands[i].subCommands.length; j++) {
-					cmd.registerSubCommand(
+					cmd.registerSubcommand(
 						commands[i].subCommands[j].name,
 						commands[i].subCommands[j].return,
 						commands[i].subCommands[j].options
