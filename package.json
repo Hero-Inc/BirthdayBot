@@ -1,0 +1,22 @@
+{
+  "name": "birthdaybot",
+  "version": "1.0.0",
+  "description": "A Discord bot to celebrate users birthdays",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrHeroBots/BirthdayBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MrHeroBots/BirthdayBot/issues"
+  },
+  "homepage": "https://github.com/MrHeroBots/BirthdayBot#readme",
+  "dependencies": {
+    "eris": "^0.8.2"
+  }
+}
