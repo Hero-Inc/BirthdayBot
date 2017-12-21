@@ -15,6 +15,14 @@ var commands = [
 		},
 	},
 	{
+		name: 'Version',
+		return: 'v0.0.2',
+		options: {
+			aliases: ['V'],
+			description: 'Return the version of BirthdayBot this bot is running.',
+		},
+	},
+	{
 		name: 'SetPrefix',
 		return: (msg, args) => {
 			if (args.length === 1) {
@@ -90,8 +98,9 @@ var commands = [
 							return 'This users birthday has already been saved';
 						}
 						let bkup = birthdays;
+						date = date.split('/');
 						try {
-							birthdays[user.id] = new Date(date) / 1000;
+							birthdays[user.id] = new Date(date[2], date[1], date[0]);
 							fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays));
 							return `Succesfully added birthday`;
 						} catch (e) {
@@ -158,7 +167,7 @@ var commands = [
 					let name = args[0],
 						user = msg.mentions[1];
 					if (name && user) {
-						let date = new Date(birthdays[user.id] * 1000);
+						let date = new Date(birthdays[user.id]);
 						return `${user.mention}'s birthday is ${`00${date.getDate()}`.substr(-2, 2)}/${`00${date.getMonth() + 1}`.substr(-2, 2)}/${`0000${date.getFullYear()}`.substr(-4, 4)}'`;
 					} else {
 						return 'Please eneter a valid name';
