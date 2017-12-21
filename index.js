@@ -100,7 +100,7 @@ var commands = [
 						let bkup = birthdays;
 						date = date.split('/');
 						try {
-							birthdays[user.id] = new Date(date[2], date[1], date[0]);
+							birthdays[user.id] = new Date(Date.UTC(date[2], date[1] - 1, date[0]));
 							fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays));
 							return `Succesfully added birthday`;
 						} catch (e) {
