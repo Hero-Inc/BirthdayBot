@@ -1,7 +1,10 @@
 const Discord = require(`eris`);
 const fs = require(`fs`);
 
-var config, birthdays, bot, guildData = {};
+var config,
+	birthdays = {},
+	bot,
+	guildData = {};
 
 var commands = [
 	// {name: 'example', return: 'function/string', options: {}}
