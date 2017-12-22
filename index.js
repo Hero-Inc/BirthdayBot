@@ -62,11 +62,11 @@ var commands = [
 		return: (msg, args) => {
 			let users = [],
 				today = new Date();
-			today = `${today.getDate}${today.getMonth}`;
+			today = `${today.getDate()}${today.getMonth()}`;
 			for (var id in birthdays) {
 				if (birthdays.hasOwnProperty(id)) {
 					let bday = new Date(birthdays[id]);
-					bday = `${bday.getDate}${bday.getMonth}`;
+					bday = `${bday.getDate()}${bday.getMonth()}`;
 					if (bday === today) {
 						users.push(`@${bot.users.get(id).username}#${bot.users.get(id).discriminator}`);
 					}
@@ -94,16 +94,16 @@ var commands = [
 					// Add a birthday
 					let date = args[0].replace(/[_,.-/\\]/, '/'),
 						name = args[1],
-						user = msg.mentions[1],
+						user = args[1].replace(/[<>!]/, ''),
 						reg = /([0-3]\d)\/([01]\d)\/(\d\d\d\d)/;
-					if (name && user && date.match(reg)) {
-						if (birthdays[user.id]) {
+					if (name && date.match(reg) && user.match(/\d{18}/)) {
+						if (birthdays[user]) {
 							return 'This users birthday has already been saved';
 						}
 						let bkup = birthdays;
 						date = date.split('/');
 						try {
-							birthdays[user.id] = new Date(Date.UTC(date[2], date[1] - 1, date[0]));
+							birthdays[user] = new Date(Date.UTC(date[2], date[1] - 1, date[0]));
 							fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays));
 							return `Succesfully added birthday`;
 						} catch (e) {
@@ -132,14 +132,14 @@ var commands = [
 				return: (msg, args) => {
 					// Remove a birthday
 					let name = args[0],
-						user = msg.mentions[1];
-					if (name && user) {
-						if (!birthdays[user.id]) {
+						user = args[1].replace(/[<>!]/, '');
+					if (name && user.match(/\d{18}/)) {
+						if (!birthdays[user]) {
 							return 'This users birthday has not been added yet';
 						}
 						let bkup = birthdays;
 						try {
-							delete birthdays[user.id];
+							delete birthdays[user];
 							fs.writeFileSync('./birthdays.json', JSON.stringify(birthdays));
 							return `Succesfully removed birthday`;
 						} catch (e) {
@@ -168,10 +168,14 @@ var commands = [
 				return: (msg, args) => {
 					// Search a birthday
 					let name = args[0],
-						user = msg.mentions[1];
-					if (name && user) {
-						let date = new Date(birthdays[user.id]);
-						return `${user.mention}'s birthday is ${`00${date.getDate()}`.substr(-2, 2)}/${`00${date.getMonth() + 1}`.substr(-2, 2)}/${`0000${date.getFullYear()}`.substr(-4, 4)}'`;
+						user = args[0].replace(/[<>!]/, '');
+					if (name && user.match(/\d{18}/)) {
+						if (birthdays[user]) {
+							let date = new Date(birthdays[user]);
+							return `@${bot.users.get(user).username}#${bot.users.get(user).discriminator}'s birthday is ${`00${date.getDate()}`.substr(-2, 2)}/${`00${date.getMonth() + 1}`.substr(-2, 2)}/${`0000${date.getFullYear()}`.substr(-4, 4)}`;
+						} else {
+							return 'This users birthday has not been added yet.';
+						}
 					} else {
 						return 'Please eneter a valid name';
 					}
